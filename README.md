@@ -7,7 +7,7 @@
 ## Setup instructions
 1. Download the project and change the folder name to FTC_simulator
 2. Find the file named MyOpMode.java this is where you will place your code
-3. Compile the code: Run `javac path/to/FTC_simulator/FirstTechSimulator.java` in a command line tool
+3. Compile the code: Run `javac path/to/FTC_simulator/*.java` in a command line tool
 4. Run the code: Run: `java path/to/FTC_simulator/FirstTechSimulator` (with out .java)
 
 ## Updating your code
