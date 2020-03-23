@@ -1,8 +1,9 @@
 # FTC Simulator
  A simple simulator for learning how to program FTC robots
- Note: This is not an accurate way of displaying exactly how a real robot will work, it should only be used to learn the drive system.
+ 
+Note: This is not an accurate way of displaying exactly how a real robot will work, it should only be used to learn the drive system.
 
- Note: This is the first release of this project. It is not anywhere near complete, and there is still a lot to do. I am open to any suggustions.
+Note: This is the first release of this project. It is not anywhere near complete, and there is still a lot to do. I am open to any suggustions.
 
 ## Setup instructions
 1. Download the project and change the folder name to FTC_simulator
