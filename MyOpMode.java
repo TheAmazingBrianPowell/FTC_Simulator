@@ -36,7 +36,7 @@ public class MyOpMode extends LinearOpMode {
         }
         left.setPower(1);
         right.setPower(-1);
-        while(time.time() < 9 && opModeIsActive()) {
+        while(time.time() < 8 && opModeIsActive()) {
             idle();
         }
 

@@ -154,6 +154,8 @@ class Field extends JPanel {
     double rotationAngle = 0;
     double x[] = new double[4];
     double y[] = new double[4];
+    double x4[] = new double[4];
+    double y4[] = new double[4];
 
     Field(int robotX, int robotY) {
         this.robotX = robotX;
@@ -166,6 +168,14 @@ class Field extends JPanel {
         y[2] = robotY + 76;
         x[3] = robotX;
         y[3] = robotY + 76;
+        x4[0] = robotX - 5;
+        y4[0] = robotY + 55;
+        x4[1] = robotX + 65;
+        y4[1] = robotY + 55;
+        x4[2] = robotX + 65;
+        y4[2] = robotY + 75;
+        x4[3] = robotX - 5;
+        y4[3] = robotY + 75;
 
     }
 
@@ -185,7 +195,6 @@ class Field extends JPanel {
         g2d.setPaint(new Color(100, 100, 100));
         g2d.fillRect(200, 100, 600, 600);
 
-        g2d.setPaint(Color.RED);
         rotationAngle = 0.005;
         double centerX = x[3];
         double centerY = y[3];
@@ -194,6 +203,8 @@ class Field extends JPanel {
 
         int x3[] = new int[4];
         int y3[] = new int[4];
+        int x6[] = new int[4];
+        int y6[] = new int[4];
         for(int i = 0; i < 4; i++) {
             double x2 = Math.cos(power1 / 25) * (x[i] - centerX) + Math.sin(power1 / 25) * (y[i] - centerY) + centerX;
             y[i] = Math.cos(power1 / 25) * (y[i] - centerY) - Math.sin(power1 / 25) * (x[i] - centerX) + centerY;
@@ -205,8 +216,25 @@ class Field extends JPanel {
 
             x3[i] = (int)(x[i] + 0.5);
             y3[i] = (int)(y[i] + 0.5);
+
+
+            double x5 = Math.cos(power1 / 25) * (x4[i] - centerX) + Math.sin(power1 / 25) * (y4[i] - centerY) + centerX;
+            y4[i] = Math.cos(power1 / 25) * (y4[i] - centerY) - Math.sin(power1 / 25) * (x4[i] - centerX) + centerY;
+            x4[i] = x5;
+
+            x5 = Math.cos(power2 / 25) * (x4[i] - centerX2) + Math.sin(power2 / 25) * (y4[i] - centerY2) + centerX2;
+            y4[i] = Math.cos(power2 / 25) * (y4[i] - centerY2) - Math.sin(power2 / 25) * (x4[i] - centerX2) + centerY2;
+            x4[i] = x5;
+
+            x6[i] = (int)(x4[i] + 0.5);
+            y6[i] = (int)(y4[i] + 0.5);
         }
 
+        g2d.setPaint(new Color(0,0,0));
+        Polygon backWheels = new Polygon(x6,y6,4);
+        g2d.fillPolygon(backWheels);
+
+        g2d.setPaint(new Color(70,70,70));
         Polygon robot = new Polygon(x3, y3, 4);
         g2d.fillPolygon(robot);
     }
