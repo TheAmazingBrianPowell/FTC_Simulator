@@ -1,4 +1,4 @@
-package FTC_simulator-master;
+package FTC_simulator;
 
 public class HardwareDevice {
 
