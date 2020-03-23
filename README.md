@@ -17,4 +17,4 @@ Note: This is the first release of this project. It is not anywhere near complet
 3. Run the code: `java path/to/FTC_simulator/FirstTechSimulator`
 
 ## Updates
-This is not the final product of this experiment. After school reopens, I plan on measuring some more variables to make this simulation more life-like as well as adding collisions, game components, and more functionality.
+This is not the final product of this experiment. After school reopens, I plan on measuring some more variables to make this simulation more life-like as well as adding collisions, game components, and more functionality (such as driving with encoders).
