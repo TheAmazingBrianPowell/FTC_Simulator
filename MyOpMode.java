@@ -1,4 +1,4 @@
-package FTC_simulator;
+package FTC_simulator-master;
 
 @Autonomous
 public class MyOpMode extends LinearOpMode {

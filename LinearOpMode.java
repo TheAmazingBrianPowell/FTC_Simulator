@@ -1,4 +1,4 @@
-package FTC_simulator;
+package FTC_simulator-master;
 
 public abstract class LinearOpMode {
     public HardwareMap hardwareMap = new HardwareMap();
