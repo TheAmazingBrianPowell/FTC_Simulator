@@ -5,13 +5,20 @@ import java.awt.event.*;
 
 import org.firstinspires.ftc.teamcode.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class FirstTechSimulator implements Runnable{
 
     private static int x = 0;
     private static int y = 0;
     private static int movex = 250;
     private static int movey = 200;
-    private static String scene = "simulation";
     private static Field card2 = new Field(200,200);
     private static JTextField motor3 = new JTextField("backLeft");
     private static JTextField motor4 = new JTextField("backRight");
@@ -51,7 +58,7 @@ public class FirstTechSimulator implements Runnable{
         ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tabbedPane.setSelectedIndex(1);
+                tabbedPane.setSelectedIndex(2);
                 opMode.opModeActive = true;
 
                 //opMode = (new MyAutonomous()).class;
@@ -92,7 +99,17 @@ public class FirstTechSimulator implements Runnable{
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("");
+                File myFile = new File("org" + File.separator + "firstinspires" + File.separator + "ftc" + File.separator + "teamcode" + File.separator + fileName.getText());
+                try {
+                    FileWriter fw = new FileWriter(myFile);
+                    fw.write(codeArea.getText());
+                    fw.close();
+                    runProcess("javac org/firstinspires/ftc/teamcode/" + fileName.getText());
+                } catch(IOException exc) {
+                    System.out.println("IOException!!!!!");
+                } catch(Exception compileError) {
+                    compileError.printStackTrace();
+                }
             }
         });
 
@@ -121,6 +138,21 @@ public class FirstTechSimulator implements Runnable{
         tabbedPane.addTab("Run", card2);
 
         pane.add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    private static void runProcess(String command) throws Exception {
+        Process pro = Runtime.getRuntime().exec(command);
+        printLines(command + " stdout:", pro.getInputStream());
+        printLines(command + " stderr:", pro.getErrorStream());
+        pro.waitFor();
+    }
+
+    private static void printLines(String cmd, InputStream ins) throws Exception {
+        String line = null;
+        BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+        while ((line = in.readLine()) != null) {
+            System.out.println(cmd + " " + line);
+        }
     }
 
     public void run() {
