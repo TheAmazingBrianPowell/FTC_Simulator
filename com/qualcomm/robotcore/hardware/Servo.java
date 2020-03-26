@@ -1,4 +1,4 @@
-package FTC_simulator;
+package com.qualcomm.robotcore.hardware;
 
 public class Servo extends HardwareDevice {
     private String deviceName;

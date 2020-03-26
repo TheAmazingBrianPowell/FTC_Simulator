@@ -7,14 +7,14 @@ Note: This is the first release of this project. It is not anywhere near complet
 
 ## Setup instructions
 1. Download the project and change the folder name to FTC_simulator
-2. Find the file named MyOpMode.java this is where you will place your code (Comment out all import statements and add the package `FTC_Simulation` instead of the teamcode package
-3. Compile the code: Run `javac path/to/FTC_simulator/*.java` in a command line tool
-4. Run the code: Run: `java path/to/FTC_simulator/FirstTechSimulator`
+2. Find the file named MyOpMode.java this is where you will place your code
+3. Compile the code: Run `javac ~Downloads/FTC_Simulator/org/firstinspires/ftc/teamcode` in a command line tool to compile your java program
+4. Double click on `FirstTechSimulator.class` to run the program!
 
 ## Updating your code
 1. Save MyOpMode.java
-2. Run: `javac path/to/FTC-simulator/MyOpMode.java`
-3. Run the code: `java path/to/FTC_simulator/FirstTechSimulator`
+2. Run: Compile the code: Run `javac ~Downloads/FTC_Simulator/org/firstinspires/ftc/teamcode` in a command line tool to compile your java program
+3. Restart the program. Close the window and double click on `FirstTechSimulator.class`
 
 ## Updates
 This is not the final product of this experiment. After school reopens, I plan on measuring some more variables to make this simulation more life-like as well as adding collisions, game components, and more functionality (such as driving with encoders).

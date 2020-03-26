@@ -1,4 +1,8 @@
-package FTC_simulator;
+package com.qualcomm.robotcore.eventloop.opmode;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public abstract class LinearOpMode {
     public HardwareMap hardwareMap = new HardwareMap();

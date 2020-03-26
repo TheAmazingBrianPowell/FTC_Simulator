@@ -1,9 +1,9 @@
-package FTC_simulator;
-
 import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
+
+import org.firstinspires.ftc.teamcode.*;
 
 public class FirstTechSimulator implements Runnable{
 

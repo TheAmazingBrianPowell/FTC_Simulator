@@ -1,4 +1,4 @@
-package FTC_simulator;
+package com.qualcomm.robotcore.eventloop.opmode;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TeleOp
+public @interface Autonomous
 {
     String name() default "";
 
