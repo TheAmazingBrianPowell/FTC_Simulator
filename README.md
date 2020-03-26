@@ -13,7 +13,7 @@ Note: This is the first release of this project. It is not anywhere near complet
 
 ## Updating your code
 1. Save MyOpMode.java
-2. Run: Compile the code: Run `javac ~Downloads/FTC_Simulator/org/firstinspires/ftc/teamcode` in a command line tool to compile your java program
+2. Run: Compile the code: Run `javac ~Downloads/FTC_Simulator/org/firstinspires/ftc/teamcode/MyOpMode.java` in a command line tool to compile your java program
 3. Restart the program. Close the window and double click on `FirstTechSimulator.class`
 
 ## Updates
