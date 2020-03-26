@@ -15,6 +15,7 @@ public class FirstTechSimulator implements Runnable{
     private static Field card2 = new Field(200,200);
     private static JTextField motor3 = new JTextField("backLeft");
     private static JTextField motor4 = new JTextField("backRight");
+    private static JTextArea codeArea = new JTextArea("Code");
     //private static Class<MyAutonomous> opMode;
     private static MyOpMode opMode = new MyOpMode();
 
@@ -22,6 +23,14 @@ public class FirstTechSimulator implements Runnable{
         JTabbedPane tabbedPane = new JTabbedPane();
 
         JPanel card1 = new JPanel() {
+            public Dimension getPreferredSize() {
+                Dimension size = super.getPreferredSize();
+                size.width += 100;
+                return size;
+            }
+        };
+
+        JPanel card3 = new JPanel() {
             public Dimension getPreferredSize() {
                 Dimension size = super.getPreferredSize();
                 size.width += 100;
@@ -76,6 +85,17 @@ public class FirstTechSimulator implements Runnable{
         JLabel configuration = new JLabel("<html><body style = 'text-align:center;'><h1>FTC Simulator</h1><br><h2>Created By Brian Powell from Team 15342, Aries</h2><br><p>Set the configuration names for the motors below</p></body></html>");
         configuration.setBounds(275, 40, 1000, 200);
 
+        JTextField fileName = new JTextField("MyOpMode.java");
+
+        JButton save = new JButton("Save Code");
+
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("");
+            }
+        });
+
         card1.setLayout(null);
         card1.add(ok);
 //        card1.add(motor1);
@@ -90,7 +110,13 @@ public class FirstTechSimulator implements Runnable{
 //        card1.add(fileLabel);
 //        card1.add(file);
 
+        card3.setLayout(new BorderLayout());
+        card3.add(codeArea);
+        card3.add(save, BorderLayout.SOUTH);
+        card3.add(fileName, BorderLayout.NORTH);
 
+
+        tabbedPane.addTab("Code", card3);
         tabbedPane.addTab("Init", card1);
         tabbedPane.addTab("Run", card2);
 
