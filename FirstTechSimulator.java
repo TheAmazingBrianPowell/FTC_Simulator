@@ -108,8 +108,6 @@ public class FirstTechSimulator implements Runnable {
             }
         };
 
-        ok.setBounds(400, 300, 200, 30);
-
 
 
 //        JLabel fileLabel = new JLabel("Enter class name");
@@ -205,7 +203,8 @@ public class FirstTechSimulator implements Runnable {
 //        card1.add(file);
 
         card3.setLayout(new BorderLayout());
-        card3.add(codeArea);
+        JScrollPane scrollPane = new JScrollPane(codeArea);
+        card3.add(scrollPane);
         card3.add(save, BorderLayout.SOUTH);
         card3.add(fileName, BorderLayout.NORTH);
 
