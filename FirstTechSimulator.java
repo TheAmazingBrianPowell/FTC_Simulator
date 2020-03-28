@@ -204,6 +204,7 @@ public class FirstTechSimulator implements Runnable {
 
         card3.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(codeArea);
+        codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         card3.add(scrollPane);
         card3.add(save, BorderLayout.SOUTH);
         card3.add(fileName, BorderLayout.NORTH);
