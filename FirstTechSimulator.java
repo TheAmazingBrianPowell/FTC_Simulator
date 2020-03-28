@@ -13,7 +13,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class FirstTechSimulator implements Runnable{
+import java.net.URLClassLoader;
+import java.net.URL;
+
+import net.rhsrobotics.ClassReloader;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+public class FirstTechSimulator implements Runnable {
 
     private static int x = 0;
     private static int y = 0;
@@ -22,8 +29,64 @@ public class FirstTechSimulator implements Runnable{
     private static Field card2 = new Field(200,200);
     private static JTextField motor3 = new JTextField("backLeft");
     private static JTextField motor4 = new JTextField("backRight");
-    private static JTextArea codeArea = new JTextArea("Code");
-    //private static Class<MyAutonomous> opMode;
+    private static JButton ok = new JButton("Init");
+    private static boolean exiting = false;
+    private static JTextArea codeArea = new JTextArea("package org.firstinspires.ftc.teamcode;\n" +
+            "\n" +
+            "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;\n" +
+            "import com.qualcomm.robotcore.eventloop.opmode.Autonomous;\n" +
+            "import com.qualcomm.robotcore.util.ElapsedTime;\n" +
+            "import com.qualcomm.robotcore.hardware.DcMotor;\n" +
+            "\n" +
+            "@Autonomous\n" +
+            "public class MyOpMode extends LinearOpMode {\n" +
+            "    private DcMotor left, right;\n" +
+            "    private ElapsedTime time = new ElapsedTime();\n" +
+            "\n" +
+            "    @Override\n" +
+            "    public void runOpMode() {\n" +
+            "        left = hardwareMap.get(DcMotor.class, \"backLeft\");\n" +
+            "        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n" +
+            "        left.setDirection(DcMotor.Direction.FORWARD);\n" +
+            "        right = hardwareMap.get(DcMotor.class, \"backRight\");\n" +
+            "        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n" +
+            "        right.setDirection(DcMotor.Direction.REVERSE);\n" +
+            "\n" +
+            "        waitForStart();\n" +
+            "\n" +
+            "        time.reset();\n" +
+            "        left.setPower(-1);\n" +
+            "        right.setPower(-1);\n" +
+            "        while(time.time() < 2 && opModeIsActive()) {\n" +
+            "            telemetry.addData(\"time\", time.toString());\n" +
+            "            telemetry.update();\n" +
+            "            idle();\n" +
+            "        }\n" +
+            "        left.setPower(-1);\n" +
+            "        right.setPower(0);\n" +
+            "        while(time.time() < 2.2 && opModeIsActive()) {\n" +
+            "            idle();\n" +
+            "        }\n" +
+            "        left.setPower(1);\n" +
+            "        right.setPower(1);\n" +
+            "        while(time.time() < 5 && opModeIsActive()) {\n" +
+            "            idle();\n" +
+            "        }\n" +
+            "        left.setPower(1);\n" +
+            "        right.setPower(-1);\n" +
+            "        while(time.time() < 8 && opModeIsActive()) {\n" +
+            "            idle();\n" +
+            "        }\n" +
+            "\n" +
+            "        left.setPower(-0.5);\n" +
+            "        right.setPower(-1);\n" +
+            "        while(time.time() < 12 && opModeIsActive()) {\n" +
+            "            idle();\n" +
+            "        }\n" +
+            "        left.setPower(0);\n" +
+            "        right.setPower(0);\n" +
+            "    }\n" +
+            "}");
     private static MyOpMode opMode = new MyOpMode();
 
     public void addComponentToPane(Container pane) {
@@ -45,7 +108,6 @@ public class FirstTechSimulator implements Runnable{
             }
         };
 
-        JButton ok = new JButton("Start");
         ok.setBounds(400, 300, 200, 30);
 
 
@@ -59,7 +121,19 @@ public class FirstTechSimulator implements Runnable{
             @Override
             public void actionPerformed(ActionEvent e) {
                 tabbedPane.setSelectedIndex(2);
-                opMode.opModeActive = true;
+                if(ok.getText().equals("Init")) {
+                    ok.setText("Start");
+                    opMode.isStarted = true;
+                    opMode.isStopped = false;
+                } else if(ok.getText().equals("Start")) {
+                    opMode.opModeActive = true;
+                    ok.setText("Stop");
+                } else if(ok.getText().equals("Stop")) {
+                    opMode.opModeActive = false;
+                    opMode.isStopped = true;
+                    opMode.isStarted = false;
+                    ok.setText("Init");
+                }
 
                 //opMode = (new MyAutonomous()).class;
 
@@ -92,7 +166,7 @@ public class FirstTechSimulator implements Runnable{
         JLabel configuration = new JLabel("<html><body style = 'text-align:center;'><h1>FTC Simulator</h1><br><h2>Created By Brian Powell from Team 15342, Aries</h2><br><p>Set the configuration names for the motors below</p></body></html>");
         configuration.setBounds(275, 40, 1000, 200);
 
-        JTextField fileName = new JTextField("MyOpMode.java");
+        JLabel fileName = new JLabel("MyOpMode.java");
 
         JButton save = new JButton("Save Code");
 
@@ -104,17 +178,20 @@ public class FirstTechSimulator implements Runnable{
                     FileWriter fw = new FileWriter(myFile);
                     fw.write(codeArea.getText());
                     fw.close();
-                    runProcess("javac org/firstinspires/ftc/teamcode/" + fileName.getText());
+                    runProcess("javac org/firstinspires/ftc/teamcode/MyOpMode.java");
+                    opMode = (MyOpMode)ClassReloader.reload().getConstructor().newInstance();
                 } catch(IOException exc) {
-                    System.out.println("IOException!!!!!");
+                    System.out.println("I/O Exception!!!!!");
+                } catch(ClassNotFoundException exce) {
+                    System.out.println("Class " + myFile.getName() + " not found!!!");
+                    exce.printStackTrace();
                 } catch(Exception compileError) {
-                    compileError.printStackTrace();
+                    compileError.getCause();
                 }
             }
         });
 
         card1.setLayout(null);
-        card1.add(ok);
 //        card1.add(motor1);
 //        card1.add(motor1Label);
 //        card1.add(motor2);
@@ -138,6 +215,7 @@ public class FirstTechSimulator implements Runnable{
         tabbedPane.addTab("Run", card2);
 
         pane.add(tabbedPane, BorderLayout.CENTER);
+        pane.add(ok, BorderLayout.NORTH);
     }
 
     private static void runProcess(String command) throws Exception {
@@ -156,15 +234,43 @@ public class FirstTechSimulator implements Runnable{
     }
 
     public void run() {
-        try {
-            opMode.runOpMode();
-        } catch (Exception e) {
-            System.out.println("Stopping processes...");
-            return;
+        while(true) {
+            while (!opMode.isStarted) {
+                opMode.idle();
+            }
+            try {
+                opMode.runOpMode();
+            } catch (Exception e) {
+                System.out.println("Error in opMode");
+            }
+            card2.setRobotPosition(200,200);
+            ok.setText("Init");
+            opMode.isStarted = false;
         }
     }
 
     public static void main(String[] args) {
+//        Class<?> myClass = MyOpMode.class;
+//        System.out.printf("my class is Class@%x%n", myClass.hashCode());
+//        System.out.println("reloading");
+//        URL[] urls={myClass.getProtectionDomain().getCodeSource().getLocation()};
+//        ClassLoader delegateParent = myClass.getClassLoader().getParent();
+//
+//        try(URLClassLoader cl = new URLClassLoader(urls, delegateParent)) {
+//            Class<?> reloaded = cl.loadClass(myClass.getName());
+//            System.out.printf("reloaded my class: Class@%x%n", reloaded.hashCode());
+//            System.out.println(myClass.getName());
+//            System.out.println("Different classes: " + (myClass != reloaded));
+//            opMode = (MyOpMode) reloaded.getConstructor().newInstance();
+//            cl.close();
+//        } catch(IOException exc) {
+//            System.out.println("I/O Exception!!!!!");
+//        } catch(ClassNotFoundException exce) {
+//            System.out.println("Class MyOpMode not found!!!");
+//            exce.printStackTrace();
+//        } catch(Exception compileError) {
+//            compileError.printStackTrace();
+//        }
         //javax.swing.SwingUtilities.invokeLater(new Runnable() {
             JFrame frame = new JFrame("FTC Simulation");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -179,7 +285,7 @@ public class FirstTechSimulator implements Runnable{
             Thread t = new Thread(simulator);
             t.start();
 
-            while(true) {
+            while(!exiting) {
                 double powerLeft = 0;
                 double powerRight = 0;
                 for(int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
@@ -241,6 +347,32 @@ class Field extends JPanel {
         this.robotWheel1 = robotWheel1;
         this.robotWheel2 = robotWheel2;
     }
+
+    public void setRobotPosition(int robotX, int robotY) {
+        this.robotX = robotX;
+        this.robotY = robotY;
+        x[0] = robotX;
+        y[0] = robotY;
+        x[1] = robotX + 60;
+        y[1] = robotY;
+        x[2] = robotX + 60;
+        y[2] = robotY + 76;
+        x[3] = robotX;
+        y[3] = robotY + 76;
+        x4[0] = robotX - 5;
+        y4[0] = robotY + 55;
+        x4[1] = robotX + 65;
+        y4[1] = robotY + 55;
+        x4[2] = robotX + 65;
+        y4[2] = robotY + 75;
+        x4[3] = robotX - 5;
+        y4[3] = robotY + 75;
+    }
+
+//    public int[] getRobotPosition() {
+//        int[] coordinate = {(int)robotX, (int)robotY};
+//        return coordinate;
+//    }
 
     @Override
     public void paint(Graphics g) {

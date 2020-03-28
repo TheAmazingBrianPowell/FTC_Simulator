@@ -19,7 +19,7 @@ public class MyOpMode extends LinearOpMode {
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setDirection(DcMotor.Direction.REVERSE);
 
-	    waitForStart();
+        waitForStart();
 
         time.reset();
         left.setPower(-1);
