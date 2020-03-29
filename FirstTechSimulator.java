@@ -13,11 +13,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.net.URLClassLoader;
-import java.net.URL;
-
-import net.rhsrobotics.ClassReloader;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.stream.Stream;
@@ -97,14 +92,6 @@ public class FirstTechSimulator implements Runnable {
                     opMode.isStarted = false;
                     ok.setText("Init");
                 }
-
-                //opMode = (new MyAutonomous()).class;
-
-//                try {
-//                    Class<?> opMode = Class.forName("FTCsimulation." + file.getText());
-//                } catch (ClassNotFoundException ex) {
-//                    System.out.println("Error: Could not find class " + file.getText());
-//                }
             }
         });
 
@@ -142,14 +129,14 @@ public class FirstTechSimulator implements Runnable {
                     fw.write(codeArea.getText());
                     fw.close();
                     runProcess("javac org/firstinspires/ftc/teamcode/MyOpMode.java");
-                    opMode = (MyOpMode)ClassReloader.reload().getConstructor().newInstance();
+//                    opMode = (MyOpMode) new ClassReloader().reload(MyOpMode.class).getConstructor().newInstance();
                 } catch(IOException exc) {
                     System.out.println("I/O Exception!!!!!");
                 } catch(ClassNotFoundException exce) {
                     System.out.println("Class " + myFile.getName() + " not found!!!");
                     exce.printStackTrace();
                 } catch(Exception compileError) {
-                    compileError.getCause();
+                    compileError.printStackTrace();
                 }
             }
         });
@@ -164,8 +151,6 @@ public class FirstTechSimulator implements Runnable {
         card1.add(motor4);
         card1.add(motor4Label);
         card1.add(configuration);
-//        card1.add(fileLabel);
-//        card1.add(file);
 
         card3.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(codeArea);
@@ -215,61 +200,39 @@ public class FirstTechSimulator implements Runnable {
     }
 
     public static void main(String[] args) {
-//        Class<?> myClass = MyOpMode.class;
-//        System.out.printf("my class is Class@%x%n", myClass.hashCode());
-//        System.out.println("reloading");
-//        URL[] urls={myClass.getProtectionDomain().getCodeSource().getLocation()};
-//        ClassLoader delegateParent = myClass.getClassLoader().getParent();
-//
-//        try(URLClassLoader cl = new URLClassLoader(urls, delegateParent)) {
-//            Class<?> reloaded = cl.loadClass(myClass.getName());
-//            System.out.printf("reloaded my class: Class@%x%n", reloaded.hashCode());
-//            System.out.println(myClass.getName());
-//            System.out.println("Different classes: " + (myClass != reloaded));
-//            opMode = (MyOpMode) reloaded.getConstructor().newInstance();
-//            cl.close();
-//        } catch(IOException exc) {
-//            System.out.println("I/O Exception!!!!!");
-//        } catch(ClassNotFoundException exce) {
-//            System.out.println("Class MyOpMode not found!!!");
-//            exce.printStackTrace();
-//        } catch(Exception compileError) {
-//            compileError.printStackTrace();
-//        }
-        //javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            JFrame frame = new JFrame("FTC Simulation");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame frame = new JFrame("FTC Simulation");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            FirstTechSimulator simulator = new FirstTechSimulator();
-            simulator.addComponentToPane(frame.getContentPane());
+        FirstTechSimulator simulator = new FirstTechSimulator();
+        simulator.addComponentToPane(frame.getContentPane());
 
-            frame.setPreferredSize(new Dimension(1000,800));
-            frame.pack();
-            frame.setVisible(true);
+        frame.setPreferredSize(new Dimension(1000, 800));
+        frame.pack();
+        frame.setVisible(true);
 
-            Thread t = new Thread(simulator);
-            t.start();
+        Thread t = new Thread(simulator);
+        t.start();
 
-            while(!exiting) {
-                double powerLeft = 0;
-                double powerRight = 0;
-                for(int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
-                    if(opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor3.getText())) {
-                        powerLeft = opMode.hardwareMap.dcMotorList.get(i).getPower();
-                    }
-                    if(opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor4.getText())) {
-                        powerRight = opMode.hardwareMap.dcMotorList.get(i).getPower();
-                    }
+        while (!exiting) {
+            double powerLeft = 0;
+            double powerRight = 0;
+            for (int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
+                if (opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor3.getText())) {
+                    powerLeft = opMode.hardwareMap.dcMotorList.get(i).getPower();
                 }
-                if(opMode.opModeIsActive()) card2.updateX(powerLeft, powerRight);
-                else card2.updateX(0,0);
-                frame.repaint();
-                try {
-                    Thread.sleep(10);
-                } catch (Exception e) {
-                    return;
+                if (opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor4.getText())) {
+                    powerRight = opMode.hardwareMap.dcMotorList.get(i).getPower();
                 }
             }
+            if (opMode.opModeIsActive()) card2.updateX(powerLeft, powerRight);
+            else card2.updateX(0, 0);
+            frame.repaint();
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                return;
+            }
+        }
     }
 }
 

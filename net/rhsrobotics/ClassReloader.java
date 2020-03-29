@@ -9,9 +9,8 @@ import org.firstinspires.ftc.teamcode.MyOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class ClassReloader {
-    public static Class<?> reload() {
+    public Class<?> reload(Class<?> myClass) {
         try {
-            Class<?> myClass = MyOpMode.class;
             System.out.printf("my class is Class@%x%n", myClass.hashCode());
             System.out.println("reloading");
             URL[] urls={myClass.getProtectionDomain().getCodeSource().getLocation()};
@@ -33,15 +32,5 @@ public class ClassReloader {
             compileError.printStackTrace();
         }
         return null;
-    }
-    public static void main(String[] args) {
-        MyOpMode opMode;
-        try {
-            opMode = (MyOpMode)ClassReloader.reload().getConstructor().newInstance();
-        } catch(Exception e) {
-            e.getCause();
-            opMode = new MyOpMode();
-        }
-        System.out.println(opMode.opModeIsActive());
     }
 }
