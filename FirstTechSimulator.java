@@ -5,18 +5,49 @@ import java.awt.event.*;
 
 import org.firstinspires.ftc.teamcode.*;
 
-public class FirstTechSimulator implements Runnable{
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import java.util.stream.Stream;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+
+public class FirstTechSimulator implements Runnable {
 
     private static int x = 0;
     private static int y = 0;
     private static int movex = 250;
     private static int movey = 200;
-    private static String scene = "simulation";
     private static Field card2 = new Field(200,200);
     private static JTextField motor3 = new JTextField("backLeft");
     private static JTextField motor4 = new JTextField("backRight");
-    //private static Class<MyAutonomous> opMode;
+    private static JButton ok = new JButton("Init");
+    private static boolean exiting = false;
+    private static JTextArea codeArea = new JTextArea(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
     private static MyOpMode opMode = new MyOpMode();
+
+    //Java 8 - Read file line by line - Files.lines(Path path, Charset cs)
+
+    private static String readLineByLine(String filePath) {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
+        {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
 
     public void addComponentToPane(Container pane) {
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -29,8 +60,13 @@ public class FirstTechSimulator implements Runnable{
             }
         };
 
-        JButton ok = new JButton("Start");
-        ok.setBounds(400, 300, 200, 30);
+        JPanel card3 = new JPanel() {
+            public Dimension getPreferredSize() {
+                Dimension size = super.getPreferredSize();
+                size.width += 100;
+                return size;
+            }
+        };
 
 
 
@@ -42,16 +78,20 @@ public class FirstTechSimulator implements Runnable{
         ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tabbedPane.setSelectedIndex(1);
-                opMode.opModeActive = true;
-
-                //opMode = (new MyAutonomous()).class;
-
-//                try {
-//                    Class<?> opMode = Class.forName("FTCsimulation." + file.getText());
-//                } catch (ClassNotFoundException ex) {
-//                    System.out.println("Error: Could not find class " + file.getText());
-//                }
+                tabbedPane.setSelectedIndex(2);
+                if(ok.getText().equals("Init")) {
+                    ok.setText("Start");
+                    opMode.isStarted = true;
+                    opMode.isStopped = false;
+                } else if(ok.getText().equals("Start")) {
+                    opMode.opModeActive = true;
+                    ok.setText("Stop");
+                } else if(ok.getText().equals("Stop")) {
+                    opMode.opModeActive = false;
+                    opMode.isStopped = true;
+                    opMode.isStarted = false;
+                    ok.setText("Init");
+                }
             }
         });
 
@@ -76,8 +116,32 @@ public class FirstTechSimulator implements Runnable{
         JLabel configuration = new JLabel("<html><body style = 'text-align:center;'><h1>FTC Simulator</h1><br><h2>Created By Brian Powell from Team 15342, Aries</h2><br><p>Set the configuration names for the motors below</p></body></html>");
         configuration.setBounds(275, 40, 1000, 200);
 
+        JLabel fileName = new JLabel("MyOpMode.java");
+
+        JButton save = new JButton("Save Code");
+
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File myFile = new File("org" + File.separator + "firstinspires" + File.separator + "ftc" + File.separator + "teamcode" + File.separator + fileName.getText());
+                try {
+                    FileWriter fw = new FileWriter(myFile);
+                    fw.write(codeArea.getText());
+                    fw.close();
+                    runProcess("javac org/firstinspires/ftc/teamcode/MyOpMode.java");
+//                    opMode = (MyOpMode) new ClassReloader().reload(MyOpMode.class).getConstructor().newInstance();
+                } catch(IOException exc) {
+                    System.out.println("I/O Exception!!!!!");
+                } catch(ClassNotFoundException exce) {
+                    System.out.println("Class " + myFile.getName() + " not found!!!");
+                    exce.printStackTrace();
+                } catch(Exception compileError) {
+                    compileError.printStackTrace();
+                }
+            }
+        });
+
         card1.setLayout(null);
-        card1.add(ok);
 //        card1.add(motor1);
 //        card1.add(motor1Label);
 //        card1.add(motor2);
@@ -87,60 +151,88 @@ public class FirstTechSimulator implements Runnable{
         card1.add(motor4);
         card1.add(motor4Label);
         card1.add(configuration);
-//        card1.add(fileLabel);
-//        card1.add(file);
+
+        card3.setLayout(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane(codeArea);
+        codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        card3.add(scrollPane);
+        card3.add(save, BorderLayout.SOUTH);
+        card3.add(fileName, BorderLayout.NORTH);
 
 
+        tabbedPane.addTab("Code", card3);
         tabbedPane.addTab("Init", card1);
         tabbedPane.addTab("Run", card2);
 
         pane.add(tabbedPane, BorderLayout.CENTER);
+        pane.add(ok, BorderLayout.NORTH);
+    }
+
+    private static void runProcess(String command) throws Exception {
+        Process pro = Runtime.getRuntime().exec(command);
+        printLines(command + " stdout:", pro.getInputStream());
+        printLines(command + " stderr:", pro.getErrorStream());
+        pro.waitFor();
+    }
+
+    private static void printLines(String cmd, InputStream ins) throws Exception {
+        String line = null;
+        BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+        while ((line = in.readLine()) != null) {
+            System.out.println(cmd + " " + line);
+        }
     }
 
     public void run() {
-        try {
-            opMode.runOpMode();
-        } catch (Exception e) {
-            System.out.println("Stopping processes...");
-            return;
+        while(true) {
+            while (!opMode.isStarted) {
+                opMode.idle();
+            }
+            try {
+                opMode.runOpMode();
+            } catch (Exception e) {
+                System.out.println("Error in opMode");
+            }
+            card2.setRobotPosition(200,200);
+            ok.setText("Init");
+            opMode.isStarted = false;
         }
     }
 
     public static void main(String[] args) {
-        //javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            JFrame frame = new JFrame("FTC Simulation");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame frame = new JFrame("FTC Simulation");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            FirstTechSimulator simulator = new FirstTechSimulator();
-            simulator.addComponentToPane(frame.getContentPane());
+        FirstTechSimulator simulator = new FirstTechSimulator();
+        simulator.addComponentToPane(frame.getContentPane());
 
-            frame.setPreferredSize(new Dimension(1000,800));
-            frame.pack();
-            frame.setVisible(true);
+        frame.setPreferredSize(new Dimension(1000, 800));
+        frame.pack();
+        frame.setVisible(true);
 
-            Thread t = new Thread(simulator);
-            t.start();
+        Thread t = new Thread(simulator);
+        t.start();
 
-            while(true) {
-                double powerLeft = 0;
-                double powerRight = 0;
-                for(int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
-                    if(opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor3.getText())) {
-                        powerLeft = opMode.hardwareMap.dcMotorList.get(i).getPower();
-                    }
-                    if(opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor4.getText())) {
-                        powerRight = opMode.hardwareMap.dcMotorList.get(i).getPower();
-                    }
+        while (!exiting) {
+            double powerLeft = 0;
+            double powerRight = 0;
+            for (int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
+                if (opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor3.getText())) {
+                    powerLeft = opMode.hardwareMap.dcMotorList.get(i).getPower();
                 }
-                if(opMode.opModeIsActive()) card2.updateX(powerLeft, powerRight);
-                else card2.updateX(0,0);
-                frame.repaint();
-                try {
-                    Thread.sleep(10);
-                } catch (Exception e) {
-                    return;
+                if (opMode.hardwareMap.dcMotorList.get(i).deviceName.equals(motor4.getText())) {
+                    powerRight = opMode.hardwareMap.dcMotorList.get(i).getPower();
                 }
             }
+            if (opMode.opModeIsActive()) card2.updateX(powerLeft, powerRight);
+            else card2.updateX(0, 0);
+            frame.repaint();
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                return;
+            }
+        }
     }
 }
 
@@ -183,6 +275,32 @@ class Field extends JPanel {
         this.robotWheel1 = robotWheel1;
         this.robotWheel2 = robotWheel2;
     }
+
+    public void setRobotPosition(int robotX, int robotY) {
+        this.robotX = robotX;
+        this.robotY = robotY;
+        x[0] = robotX;
+        y[0] = robotY;
+        x[1] = robotX + 60;
+        y[1] = robotY;
+        x[2] = robotX + 60;
+        y[2] = robotY + 76;
+        x[3] = robotX;
+        y[3] = robotY + 76;
+        x4[0] = robotX - 5;
+        y4[0] = robotY + 55;
+        x4[1] = robotX + 65;
+        y4[1] = robotY + 55;
+        x4[2] = robotX + 65;
+        y4[2] = robotY + 75;
+        x4[3] = robotX - 5;
+        y4[3] = robotY + 75;
+    }
+
+//    public int[] getRobotPosition() {
+//        int[] coordinate = {(int)robotX, (int)robotY};
+//        return coordinate;
+//    }
 
     @Override
     public void paint(Graphics g) {

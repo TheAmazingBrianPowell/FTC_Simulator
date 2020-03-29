@@ -8,6 +8,8 @@ public abstract class LinearOpMode {
     public HardwareMap hardwareMap = new HardwareMap();
     public abstract void runOpMode();
     public boolean opModeActive = false;
+    public boolean isStarted = false;
+    public boolean isStopped = false;
     public Telemetry telemetry = new Telemetry();
     public void waitForStart() {
         while(!opModeIsActive()) {
@@ -20,7 +22,8 @@ public abstract class LinearOpMode {
     }
 
     public boolean isStopRequested() {
-        return !opModeActive;
+        idle();
+        return isStopped;
     }
     public void idle() {
         try {

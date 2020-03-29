@@ -40,11 +40,6 @@ public class DcMotor extends HardwareDevice {
     }
 
     public void setPower(double i) {
-        try {
-            Thread.sleep(2);
-        } catch(Exception e) {
-
-        }
         currentPower = i;
     }
 
