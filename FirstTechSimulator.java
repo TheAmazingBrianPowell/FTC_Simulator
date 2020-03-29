@@ -20,6 +20,11 @@ import net.rhsrobotics.ClassReloader;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import java.util.stream.Stream;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+
 public class FirstTechSimulator implements Runnable {
 
     private static int x = 0;
@@ -31,63 +36,23 @@ public class FirstTechSimulator implements Runnable {
     private static JTextField motor4 = new JTextField("backRight");
     private static JButton ok = new JButton("Init");
     private static boolean exiting = false;
-    private static JTextArea codeArea = new JTextArea("package org.firstinspires.ftc.teamcode;\n" +
-            "\n" +
-            "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;\n" +
-            "import com.qualcomm.robotcore.eventloop.opmode.Autonomous;\n" +
-            "import com.qualcomm.robotcore.util.ElapsedTime;\n" +
-            "import com.qualcomm.robotcore.hardware.DcMotor;\n" +
-            "\n" +
-            "@Autonomous\n" +
-            "public class MyOpMode extends LinearOpMode {\n" +
-            "    private DcMotor left, right;\n" +
-            "    private ElapsedTime time = new ElapsedTime();\n" +
-            "\n" +
-            "    @Override\n" +
-            "    public void runOpMode() {\n" +
-            "        left = hardwareMap.get(DcMotor.class, \"backLeft\");\n" +
-            "        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n" +
-            "        left.setDirection(DcMotor.Direction.FORWARD);\n" +
-            "        right = hardwareMap.get(DcMotor.class, \"backRight\");\n" +
-            "        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n" +
-            "        right.setDirection(DcMotor.Direction.REVERSE);\n" +
-            "\n" +
-            "        waitForStart();\n" +
-            "\n" +
-            "        time.reset();\n" +
-            "        left.setPower(-1);\n" +
-            "        right.setPower(-1);\n" +
-            "        while(time.time() < 2 && opModeIsActive()) {\n" +
-            "            telemetry.addData(\"time\", time.toString());\n" +
-            "            telemetry.update();\n" +
-            "            idle();\n" +
-            "        }\n" +
-            "        left.setPower(-1);\n" +
-            "        right.setPower(0);\n" +
-            "        while(time.time() < 2.2 && opModeIsActive()) {\n" +
-            "            idle();\n" +
-            "        }\n" +
-            "        left.setPower(1);\n" +
-            "        right.setPower(1);\n" +
-            "        while(time.time() < 5 && opModeIsActive()) {\n" +
-            "            idle();\n" +
-            "        }\n" +
-            "        left.setPower(1);\n" +
-            "        right.setPower(-1);\n" +
-            "        while(time.time() < 8 && opModeIsActive()) {\n" +
-            "            idle();\n" +
-            "        }\n" +
-            "\n" +
-            "        left.setPower(-0.5);\n" +
-            "        right.setPower(-1);\n" +
-            "        while(time.time() < 12 && opModeIsActive()) {\n" +
-            "            idle();\n" +
-            "        }\n" +
-            "        left.setPower(0);\n" +
-            "        right.setPower(0);\n" +
-            "    }\n" +
-            "}");
+    private static JTextArea codeArea = new JTextArea(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
     private static MyOpMode opMode = new MyOpMode();
+
+    //Java 8 - Read file line by line - Files.lines(Path path, Charset cs)
+
+    private static String readLineByLine(String filePath) {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
+        {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
 
     public void addComponentToPane(Container pane) {
         JTabbedPane tabbedPane = new JTabbedPane();
