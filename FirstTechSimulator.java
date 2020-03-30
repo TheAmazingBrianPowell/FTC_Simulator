@@ -34,8 +34,6 @@ public class FirstTechSimulator implements Runnable {
     private static JTextArea codeArea = new JTextArea(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
     private static MyOpMode opMode = new MyOpMode();
 
-    //Java 8 - Read file line by line - Files.lines(Path path, Charset cs)
-
     private static String readLineByLine(String filePath) {
         StringBuilder contentBuilder = new StringBuilder();
         try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
@@ -193,7 +191,7 @@ public class FirstTechSimulator implements Runnable {
             } catch (Exception e) {
                 System.out.println("Error in opMode");
             }
-            card2.setRobotPosition(200,200);
+            card2.setRobotPosition(250,200);
             ok.setText("Init");
             opMode.isStarted = false;
         }
@@ -248,6 +246,7 @@ class Field extends JPanel {
     double y[] = new double[4];
     double x4[] = new double[4];
     double y4[] = new double[4];
+    double currentAngle = 0;
 
     Field(int robotX, int robotY) {
         this.robotX = robotX;
@@ -295,6 +294,7 @@ class Field extends JPanel {
         y4[2] = robotY + 75;
         x4[3] = robotX - 5;
         y4[3] = robotY + 75;
+        currentAngle = 0;
     }
 
 //    public int[] getRobotPosition() {
@@ -313,39 +313,48 @@ class Field extends JPanel {
         g2d.setPaint(new Color(100, 100, 100));
         g2d.fillRect(200, 100, 600, 600);
 
-        rotationAngle = 0.005;
-        double centerX = x[3];
-        double centerY = y[3];
-        double centerX2 = x[2];
-        double centerY2 = y[2];
-
         int x3[] = new int[4];
         int y3[] = new int[4];
         int x6[] = new int[4];
         int y6[] = new int[4];
-        for(int i = 0; i < 4; i++) {
-            double x2 = Math.cos(power1 / 25) * (x[i] - centerX) + Math.sin(power1 / 25) * (y[i] - centerY) + centerX;
-            y[i] = Math.cos(power1 / 25) * (y[i] - centerY) - Math.sin(power1 / 25) * (x[i] - centerX) + centerY;
-            x[i] = x2;
+        if (power1 != power2) {
+            double centerX = (x[2] + x[3]) / 2 + (power1 + power2) / ((power1 - power2) / ((x[3] - x[2]) / 2));
+            double centerY = (y[2] * (((power2 + power1) / (power2 - power1)) / 2 + 0.5) + y[3] * (((power1 + power2) / (power1 - power2)) / 2 + 0.5));
+            double c1 = Math.sqrt((x[0] - centerX) * (x[0] - centerX) + (y[0] - centerX) * (y[0] - centerX));
+            double c2 = Math.sqrt((x[1] - centerX) * (x[1] - centerX) + (y[1] - centerX) * (y[1] - centerX));
+            double r = (c1 + c2) / 2;
+            double deltaS;
+            if(Math.abs(power1) > Math.abs(power2)) {
+                deltaS = Math.abs(power1) / power1 * 3;
+            } else {
+                deltaS = Math.abs(power2) / power2 * 3;
+            }
+            for (int i = 0; i < 4; i++) {
+                double x2 = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) - Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + centerX;
+                y[i] = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) + centerY;
+                x[i] = x2;
+                x3[i] = (int) (x[i] + 0.5);
+                y3[i] = (int) (y[i] + 0.5);
 
-            x2 = Math.cos(power2 / 25) * (x[i] - centerX2) + Math.sin(power2 / 25) * (y[i] - centerY2) + centerX2;
-            y[i] = Math.cos(power2 / 25) * (y[i] - centerY2) - Math.sin(power2 / 25) * (x[i] - centerX2) + centerY2;
-            x[i] = x2;
+                double x5 = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x4[i] - centerX) - Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y4[i] - centerY) + centerX;
+                y4[i] = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y4[i] - centerY) + Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x4[i] - centerX) + centerY;
+                x4[i] = x5;
+                x6[i] = (int) (x4[i] + 0.5);
+                y6[i] = (int) (y4[i] + 0.5);
+            }
+            currentAngle += deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2);
+        } else {
+            for(var i = 0; i < 4; i++) {
+                x[i] -= Math.sin(currentAngle) * -(power1 + power2) * 3;
+                y[i] += Math.cos(currentAngle) * -(power1 + power2) * 3;
+                x3[i] = (int) (x[i] + 0.5);
+                y3[i] = (int) (y[i] + 0.5);
 
-            x3[i] = (int)(x[i] + 0.5);
-            y3[i] = (int)(y[i] + 0.5);
-
-
-            double x5 = Math.cos(power1 / 25) * (x4[i] - centerX) + Math.sin(power1 / 25) * (y4[i] - centerY) + centerX;
-            y4[i] = Math.cos(power1 / 25) * (y4[i] - centerY) - Math.sin(power1 / 25) * (x4[i] - centerX) + centerY;
-            x4[i] = x5;
-
-            x5 = Math.cos(power2 / 25) * (x4[i] - centerX2) + Math.sin(power2 / 25) * (y4[i] - centerY2) + centerX2;
-            y4[i] = Math.cos(power2 / 25) * (y4[i] - centerY2) - Math.sin(power2 / 25) * (x4[i] - centerX2) + centerY2;
-            x4[i] = x5;
-
-            x6[i] = (int)(x4[i] + 0.5);
-            y6[i] = (int)(y4[i] + 0.5);
+                x4[i] -= Math.sin(currentAngle) * -(power1 + power2) * 3;
+                y4[i] += Math.cos(currentAngle) * -(power1 + power2) * 3;
+                x6[i] = (int) (x4[i] + 0.5);
+                y6[i] = (int) (y4[i] + 0.5);
+            }
         }
 
         g2d.setPaint(new Color(0,0,0));
@@ -363,7 +372,7 @@ class Field extends JPanel {
 var y = [200,200,250,250];
 
 var input = [];
-var speed = 5;
+var deltaS = 0.1;
 
 var currentAngle = 0;
 
@@ -375,46 +384,39 @@ keyReleased = function() {
     input[keyCode] = false;
 };
 
+var move = function(power1, power2) {
+    if (power1 !== power2) {
+        var centerX = (x[0] + x[1]) / 2 + (power1 + power2) / ((power1 - power2) / ((x[1] - x[0]) / 2));
+        var centerY = (y[0] * (((power2 + power1) / (power2 - power1)) / 2 + 0.5) + y[1] * (((power1 + power2) / (power1 - power2)) / 2 + 0.5));
+        var c1 = Math.round(sqrt(sq(x[0] - centerX) + sq(y[0] - centerY)));
+        var c2 = Math.round(sqrt(sq(x[1] - centerX) + sq(y[1] - centerY)));
+        var r = (c1 + c2) / 2;
+        var deltaS;
+        if(power1 > power2) {
+            deltaS = Math.abs(power1) / power1 * 3;
+        } else {
+            deltaS = Math.abs(power2) / power2 * 3;
+        }
+        fill(255,0,0);
+        ellipse(centerX, centerY,10,10);
+        for(var i = 0; i < 4; i++) {
+            var x2 = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) - Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + centerX;
+            y[i] = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) + centerY;
+            x[i] = x2;
+        }
+        currentAngle += deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2);
+    } else {
+        for(var i = 0; i < 4; i++) {
+            x[i] -= Math.sin(currentAngle) * -(power1 + power2) * 3;
+            y[i] += Math.cos(currentAngle) * -(power1 + power2) * 3;
+        }
+    }
+};
 draw = function() {
     background(255);
-    if(input[UP]) {
-        for(var i = 0; i < 4; i++) {
-            y[i]+=sin(currentAngle) * 2;
-            x[i]+=cos(currentAngle) * 2;
-        }
-    }
-    if(input[DOWN]) {
-        for(var i = 0; i < 4; i++) {
-            y[i]-=sin(currentAngle) * 2;
-            x[i]-=cos(currentAngle) * 2;
-        }
-    }
-    if(input[RIGHT]) {
-        currentAngle += speed;
-        var centerX = (x[0] + x[1] + x[2] + x[3]) / 4;
-        var centerY = (y[0] + y[1] + y[2] + y[3]) / 4;
-        for(var i = 0; i < 4; i++) {
-            var x2 = x[i];
-            x2 = cos(speed) * (x[i] - centerX) - sin(speed) * (y[i] - centerY) + centerX;
-            y[i] = cos(speed) * (y[i] - centerY) + sin(speed) * (x[i] - centerX) + centerY;
-            x[i] = x2;
-        }
-    }
-    if(input[LEFT]) {
-        currentAngle -= speed;
-        var centerX = (x[0] + x[1] + x[2] + x[3]) / 4;
-        var centerY = (y[0] + y[1] + y[2] + y[3]) / 4;
-        for(var i = 0; i < 4; i++) {
-            var x2 = x[i];
-            x2 = cos(-speed) * (x[i] - centerX) - sin(-speed) * (y[i] - centerY) + centerX;
-            y[i] = cos(-speed) * (y[i] - centerY) + sin(-speed) * (x[i] - centerX) + centerY;
-            x[i] = x2;
-        }
-    }
+    noFill();
     quad(x[0],y[0],x[1],y[1],x[2],y[2],x[3],y[3]);
-     //x2 = x;
-    // y2 = y;
-     //x = cos(frameCount / 10) * (x - 210) - sin(frameCount / 10) * (y - 210) + 210;
-     //y = cos(frameCount / 10) * (y - 210) + sin(frameCount / 10) * (x - 210) + 210;
+    move(-0.1,-0.1);
+    println(currentAngle);
 };
 */
