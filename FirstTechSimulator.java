@@ -193,6 +193,8 @@ public class FirstTechSimulator implements Runnable {
             }
             card2.setRobotPosition(250,200);
             ok.setText("Init");
+            opMode.opModeActive = false;
+            opMode.isStopped = true;
             opMode.isStarted = false;
         }
     }
