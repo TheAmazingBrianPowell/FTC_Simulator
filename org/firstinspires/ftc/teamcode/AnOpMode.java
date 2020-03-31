@@ -13,10 +13,8 @@ public class MyOpMode extends LinearOpMode {
     @Override
     public void runOpMode() {
         left = hardwareMap.get(DcMotor.class, "backLeft");
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         left.setDirection(DcMotor.Direction.FORWARD);
         right = hardwareMap.get(DcMotor.class, "backRight");
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();

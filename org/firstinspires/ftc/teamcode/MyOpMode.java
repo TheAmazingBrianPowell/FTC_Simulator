@@ -13,20 +13,16 @@ public class MyOpMode extends LinearOpMode {
     @Override
     public void runOpMode() {
         left = hardwareMap.get(DcMotor.class, "backLeft");
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         left.setDirection(DcMotor.Direction.FORWARD);
         right = hardwareMap.get(DcMotor.class, "backRight");
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        right.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
 
         time.reset();
-        left.setPower(-1);
-        right.setPower(-1);
+        left.setPower(0.4);
+        right.setPower(-0.8);
         while(time.time() < 2 && opModeIsActive()) {
-            telemetry.addData("time", time.toString());
-            telemetry.update();
             idle();
         }
         left.setPower(-1);
@@ -36,7 +32,7 @@ public class MyOpMode extends LinearOpMode {
         }
         left.setPower(1);
         right.setPower(1);
-        while(time.time() < 5 && opModeIsActive()) {
+        while(time.time() < 3 && opModeIsActive()) {
             idle();
         }
         left.setPower(1);
@@ -45,9 +41,9 @@ public class MyOpMode extends LinearOpMode {
             idle();
         }
 
-        left.setPower(-0.5);
+        left.setPower(1);
         right.setPower(-1);
-        while(time.time() < 12 && opModeIsActive()) {
+        while(time.time() < 30 && opModeIsActive()) {
             idle();
         }
         left.setPower(0);
