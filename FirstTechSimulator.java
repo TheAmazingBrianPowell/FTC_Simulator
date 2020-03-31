@@ -275,9 +275,9 @@ class Field extends JPanel {
         this.robotWheel2 = robotWheel2;
     }
 
-    public void setRobotPosition(int robotX, int robotY) {
-        this.robotX = robotX;
-        this.robotY = robotY;
+    public void setRobotPosition(int robotX2, int robotY2) {
+        robotX = robotX2;
+        robotY = robotY2;
         x[0] = robotX;
         y[0] = robotY;
         x[1] = robotX + 60;
@@ -317,17 +317,20 @@ class Field extends JPanel {
         int y3[] = new int[4];
         int x6[] = new int[4];
         int y6[] = new int[4];
+
+        double centerX;
+        double centerY;
         if (power1 != power2) {
-            double centerX = (x[2] + x[3]) / 2 + (power1 + power2) / ((power1 - power2) / ((x[3] - x[2]) / 2));
-            double centerY = (y[2] * (((power2 + power1) / (power2 - power1)) / 2 + 0.5) + y[3] * (((power1 + power2) / (power1 - power2)) / 2 + 0.5));
-            double c1 = Math.sqrt((x[0] - centerX) * (x[0] - centerX) + (y[0] - centerX) * (y[0] - centerX));
-            double c2 = Math.sqrt((x[1] - centerX) * (x[1] - centerX) + (y[1] - centerX) * (y[1] - centerX));
+            centerX = (x[2] + x[3]) / 2 + (power1 + power2) / ((power1 - power2) / ((x[3] - x[2]) / 2));
+            centerY = (y[2] * (((power2 + power1) / (power2 - power1)) / 2 + 0.5) + y[3] * (((power1 + power2) / (power1 - power2)) / 2 + 0.5));
+            double c1 = Math.sqrt((x[0] - centerX) * (x[0] - centerX) + (y[0] - centerY) * (y[0] - centerY));
+            double c2 = Math.sqrt((x[1] - centerX) * (x[1] - centerX) + (y[1] - centerY) * (y[1] - centerY));
             double r = (c1 + c2) / 2;
             double deltaS;
-            if(Math.abs(power1) > Math.abs(power2)) {
-                deltaS = Math.abs(power1) / power1 * 3;
+            if((power1 <= 0 && power2 >= 0) || (power1 > 0) && power2 > 0) {
+                deltaS = -3;
             } else {
-                deltaS = Math.abs(power2) / power2 * 3;
+                deltaS = 3;
             }
             for (int i = 0; i < 4; i++) {
                 double x2 = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) - Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + centerX;
@@ -355,6 +358,8 @@ class Field extends JPanel {
                 x6[i] = (int) (x4[i] + 0.5);
                 y6[i] = (int) (y4[i] + 0.5);
             }
+            centerX = (x[2] + x[3]) / 2;
+            centerY = (y[2] + y[3]) / 2;
         }
 
         g2d.setPaint(new Color(0,0,0));
@@ -364,12 +369,19 @@ class Field extends JPanel {
         g2d.setPaint(new Color(70,70,70));
         Polygon robot = new Polygon(x3, y3, 4);
         g2d.fillPolygon(robot);
+
+        g2d.setPaint(Color.RED);
+        g2d.fillOval((int) centerX - 5, (int) centerY - 5,10,10);
     }
 
 }
 
 /*var x = [200,250,250,200];
 var y = [200,200,250,250];
+
+var prevX = [200,250,250,200];
+var prevY = [200,200,250,250];
+var prevAngle = 0;
 
 var input = [];
 var deltaS = 0.1;
@@ -392,31 +404,85 @@ var move = function(power1, power2) {
         var c2 = Math.round(sqrt(sq(x[1] - centerX) + sq(y[1] - centerY)));
         var r = (c1 + c2) / 2;
         var deltaS;
-        if(power1 > power2) {
-            deltaS = Math.abs(power1) / power1 * 3;
+        if((power1 <= 0 && power2 >= 0) || (power1 > 0) && power2 > 0) {
+            deltaS = -3;
         } else {
-            deltaS = Math.abs(power2) / power2 * 3;
+            deltaS = 3;
         }
         fill(255,0,0);
         ellipse(centerX, centerY,10,10);
         for(var i = 0; i < 4; i++) {
+            prevX[i] = x[i];
+            prevY[i] = y[i];
+            prevAngle = currentAngle;
             var x2 = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) - Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + centerX;
             y[i] = Math.cos(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (y[i] - centerY) + Math.sin(deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2)) * (x[i] - centerX) + centerY;
             x[i] = x2;
         }
         currentAngle += deltaS / r * ((Math.abs(power1) + Math.abs(power2)) / 2);
     } else {
+        var slope;
+        var angle;
+        fill(255,0,0);
+        ellipse((x[0] + x[1]) / 2, (y[0] + y[1]) / 2,10,10);
+        if(y[0] !== y[1]) {
+            slope = (x[1] - x[0]) / (y[0] - y[1]);
+            if(y[0] < y[1]) {
+                if(x[0] > x[1]) {
+                    currentAngle = Math.atan(-slope) - Math.PI;
+                } else {
+                    currentAngle = Math.atan(-slope) - Math.PI;
+                }
+            } else {
+                if(x[0] > x[1]) {
+                    currentAngle = Math.atan(-slope);
+                } else {
+                    currentAngle = Math.atan(-slope);
+                }
+            }
+            println(currentAngle);
+        } else {
+            currentAngle = -Math.PI / 2;
+        }
         for(var i = 0; i < 4; i++) {
-            x[i] -= Math.sin(currentAngle) * -(power1 + power2) * 3;
-            y[i] += Math.cos(currentAngle) * -(power1 + power2) * 3;
+            prevX[i] = x[i];
+            prevY[i] = y[i];
+            x[i] -= Math.cos(currentAngle) * -(power1 + power2) * 3;
+            y[i] += Math.sin(currentAngle) * -(power1 + power2) * 3;
         }
     }
 };
+var collided = [false, false];
 draw = function() {
     background(255);
+    var left = 0;
+    var right = 0;
+    if(input[LEFT] && !collided[0]) {
+        left = -1;
+    }
+    if(input[RIGHT] && !collided[1]) {
+        right = -1;
+    }
+    move(right,left);
+    var didCollide = false;
+    for(var i = 0; i < 4; i++) {
+        if(x[i] <= 0 || x[i] >= 400 || y[i] <= 0 || y[i] >= 400) {
+            didCollide = true;
+            collided[i % 2] = true;
+            break;
+        } else {
+            collided[i % 2] = false;
+        }
+    }
+    if(didCollide) {
+        for(var i = 0; i < 4; i++) {
+            x[i] = prevX[i];
+            y[i] = prevY[i];
+        }
+        currentAngle = prevAngle;
+    }
     noFill();
     quad(x[0],y[0],x[1],y[1],x[2],y[2],x[3],y[3]);
-    move(-0.1,-0.1);
-    println(currentAngle);
 };
+
 */
