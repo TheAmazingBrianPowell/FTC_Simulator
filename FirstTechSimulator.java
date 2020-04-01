@@ -3,8 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import org.firstinspires.ftc.teamcode.*;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +18,21 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 
+import org.firstinspires.ftc.teamcode.MyOpMode;
+
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Element;
+import javax.swing.text.ParagraphView;
+import javax.swing.text.StyledEditorKit;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+//import java.net.URLClassLoader;
+//import java.net.URL;
+//
+//import java.lang.reflect.InvocationHandler;
+
+//import net.rhsrobotics.ClassReloader;
+
 public class FirstTechSimulator implements Runnable {
 
     private static int x = 0;
@@ -30,9 +43,12 @@ public class FirstTechSimulator implements Runnable {
     private static JTextField motor3 = new JTextField("backLeft");
     private static JTextField motor4 = new JTextField("backRight");
     private static JButton ok = new JButton("Init");
-    private static boolean exiting = false;
-    private static JTextArea codeArea = new JTextArea(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
+    private static JEditorPane codeArea = new JEditorPane();
+    private static File classesDir = new File("org/firstinspires/ftc/teamcode");
+    private static ClassLoader parentLoader = MyOpMode.class.getClassLoader();
+    private static Class<MyOpMode> cls1;
     private static MyOpMode opMode = new MyOpMode();
+    private static JEditorPane errors = new JEditorPane();
 
     private static String readLineByLine(String filePath) {
         StringBuilder contentBuilder = new StringBuilder();
@@ -122,20 +138,26 @@ public class FirstTechSimulator implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File myFile = new File("org" + File.separator + "firstinspires" + File.separator + "ftc" + File.separator + "teamcode" + File.separator + fileName.getText());
+                Integer errorCode = 0;
                 try {
                     FileWriter fw = new FileWriter(myFile);
                     fw.write(codeArea.getText());
                     fw.close();
-                    runProcess("javac org/firstinspires/ftc/teamcode/MyOpMode.java");
-//                    opMode = (MyOpMode) new ClassReloader().reload(MyOpMode.class).getConstructor().newInstance();
+                    errorCode = com.sun.tools.javac.Main.compile(new String[] {"org/firstinspires/ftc/teamcode/MyOpMode.java"});
+
+//                    try (URLClassLoader loader1 = new URLClassLoader(new URL[] { classesDir.toURI().toURL() },  parentLoader)) {
+//                        cls1 = (Class<MyOpMode>) loader1.loadClass("org.firstinspires.ftc.teamcode.MyOpMode");
+//                        opMode = cls1.getConstructor().newInstance();
+//                    } catch(Exception except) {
+//                        except.printStackTrace();
+//                    }
+
                 } catch(IOException exc) {
                     System.out.println("I/O Exception!!!!!");
-                } catch(ClassNotFoundException exce) {
-                    System.out.println("Class " + myFile.getName() + " not found!!!");
-                    exce.printStackTrace();
                 } catch(Exception compileError) {
-                    compileError.printStackTrace();
+                     compileError.printStackTrace();
                 }
+                errors.setText(errorCode == 0 ? "Code Saved!" : "There is an error in your code");
             }
         });
 
@@ -150,11 +172,20 @@ public class FirstTechSimulator implements Runnable {
         card1.add(motor4Label);
         card1.add(configuration);
 
-        card3.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(codeArea);
+        codeArea.setEditorKit(new CustomEditorKit());
+        codeArea.setText(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
+        JPanel JBottom = new JPanel();
+        JBottom.setPreferredSize(new Dimension(1000, 200));
+        JBottom.setLayout(new BorderLayout());
+        JBottom.add(save, BorderLayout.NORTH);
+        errors.setEditable(false);
+        JBottom.add(errors, BorderLayout.CENTER);
         codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+
+        card3.setLayout(new BorderLayout());
         card3.add(scrollPane);
-        card3.add(save, BorderLayout.SOUTH);
+        card3.add(JBottom, BorderLayout.SOUTH);
         card3.add(fileName, BorderLayout.NORTH);
 
 
@@ -164,21 +195,6 @@ public class FirstTechSimulator implements Runnable {
 
         pane.add(tabbedPane, BorderLayout.CENTER);
         pane.add(ok, BorderLayout.NORTH);
-    }
-
-    private static void runProcess(String command) throws Exception {
-        Process pro = Runtime.getRuntime().exec(command);
-        printLines(command + " stdout:", pro.getInputStream());
-        printLines(command + " stderr:", pro.getErrorStream());
-        pro.waitFor();
-    }
-
-    private static void printLines(String cmd, InputStream ins) throws Exception {
-        String line = null;
-        BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-        while ((line = in.readLine()) != null) {
-            System.out.println(cmd + " " + line);
-        }
     }
 
     public void run() {
@@ -200,6 +216,15 @@ public class FirstTechSimulator implements Runnable {
     }
 
     public static void main(String[] args) {
+//        try (URLClassLoader loader1 = new URLClassLoader(new URL[] { classesDir.toURI().toURL() },  parentLoader)) {
+//            cls1 = (Class<MyOpMode>) loader1.loadClass("org.firstinspires.ftc.teamcode.MyOpMode");
+//            opMode = cls1.getConstructor().newInstance();
+            //InvocationHandler handler = new ClassReloader();
+            //opMode = (MyOpMode) Proxy.newProxyInstance(MyOpMode.class.getClassLoader(), new Class[] { MyOpMode.class }, handler);
+//        } catch(Exception except) {
+//            except.printStackTrace();
+//        }
+
         JFrame frame = new JFrame("FTC Simulation");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -213,7 +238,7 @@ public class FirstTechSimulator implements Runnable {
         Thread t = new Thread(simulator);
         t.start();
 
-        while (!exiting) {
+        while (true) {
             double powerLeft = 0;
             double powerRight = 0;
             for (int i = 0; i < opMode.hardwareMap.dcMotorList.size(); i++) {
@@ -376,6 +401,89 @@ class Field extends JPanel {
         g2d.fillOval((int) centerX - 5, (int) centerY - 5,10,10);
     }
 
+}
+
+class CustomEditorKit extends StyledEditorKit {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public ViewFactory getViewFactory() {
+        return new CustomViewFactory(super.getViewFactory());
+    }
+}
+
+class CustomViewFactory implements ViewFactory {
+
+    private ViewFactory defaultViewFactory;
+
+    CustomViewFactory(ViewFactory defaultViewFactory) {
+        this.defaultViewFactory = defaultViewFactory;
+    }
+
+    @Override
+    public View create(Element elem) {
+        if (elem != null && elem.getName().equals(AbstractDocument.ParagraphElementName)) {
+            return new CustomParagraphView(elem);
+        }
+        return defaultViewFactory.create(elem);
+    }
+}
+
+class CustomParagraphView extends ParagraphView {
+
+    public final short MARGIN_WIDTH_PX = 30;
+
+    private Element thisElement;
+
+    private Font font;
+
+    public CustomParagraphView(Element elem) {
+        super(elem);
+        thisElement = elem;
+        this.setInsets((short) 0, (short) 0, (short) 0, (short) 0);
+    }
+
+    @Override
+    protected void setInsets(short top, short left, short bottom, short right) {
+        super.setInsets(top, (short) (left + MARGIN_WIDTH_PX), bottom, right);
+    }
+
+    @Override
+    public void paintChild(Graphics g, Rectangle alloc, int index) {
+        super.paintChild(g, alloc, index);
+        if (index > 0) {
+            return;
+        }
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Pad left so the numbers align
+        int lineNumber = getLineNumber() + 1;
+        String lnStr = String.format("%3d", lineNumber);
+
+        font = font != null ? font : new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        g2d.setFont(font);
+
+        int x = alloc.x - getLeftInset();
+        int y = alloc.y + alloc.height - 3;
+        g2d.setPaint(new Color(150,150,150));
+        g2d.fillRect(x,y - 12, MARGIN_WIDTH_PX - 5, 25);
+        g2d.setPaint(Color.WHITE);
+        g2d.drawString(lnStr, x, y);
+    }
+
+    private int getLineNumber() {
+        Element root = getDocument().getDefaultRootElement();
+        int len = root.getElementCount();
+        for (int i = 0; i < len; i++) {
+            if (root.getElement(i) == thisElement) {
+                return i;
+            }
+        }
+        return 0;
+    }
 }
 
 /*var x = [200,250,250,200];

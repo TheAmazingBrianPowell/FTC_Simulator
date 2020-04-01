@@ -43,7 +43,12 @@ public class MyOpMode extends LinearOpMode {
 
         left.setPower(1);
         right.setPower(-1);
-        while(time.time() < 30 && opModeIsActive()) {
+        while(time.time() < 12 && opModeIsActive()) {
+            idle();
+        }
+	left.setPower(1);
+	right.setPower(0.8);
+	while(time.time() < 15 && opModeIsActive()) {
             idle();
         }
         left.setPower(0);
