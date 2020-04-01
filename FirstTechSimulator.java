@@ -159,7 +159,7 @@ public class FirstTechSimulator implements Runnable {
                 } catch(Exception compileError) {
                      compileError.printStackTrace();
                 }
-                errors.setText(errorCode == 0 ? "<p>Code saved! Restart the program to run the updated code!</p>" : "<p style='color:red;'>There is an error in your code:</p><br>" + err);
+                errors.setText(errorCode == 0 ? "<pre style = 'color:green;'>Code saved! Restart the program to run the updated code!</pre>" : "<pre style='color:red;'>There is an error in your code:</pre><br><pre>" + err + "</pre>");
             }
         });
 
