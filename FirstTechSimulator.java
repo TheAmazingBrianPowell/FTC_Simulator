@@ -6,10 +6,11 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -49,6 +50,7 @@ public class FirstTechSimulator implements Runnable {
     private static Class<MyOpMode> cls1;
     private static MyOpMode opMode = new MyOpMode();
     private static JEditorPane errors = new JEditorPane();
+    private static final StringWriter err = new StringWriter();
 
     private static String readLineByLine(String filePath) {
         StringBuilder contentBuilder = new StringBuilder();
@@ -143,7 +145,7 @@ public class FirstTechSimulator implements Runnable {
                     FileWriter fw = new FileWriter(myFile);
                     fw.write(codeArea.getText());
                     fw.close();
-                    errorCode = com.sun.tools.javac.Main.compile(new String[] {"org/firstinspires/ftc/teamcode/MyOpMode.java"});
+                    errorCode = com.sun.tools.javac.Main.compile(new String[] {"org/firstinspires/ftc/teamcode/MyOpMode.java"}, new PrintWriter(err));
 
 //                    try (URLClassLoader loader1 = new URLClassLoader(new URL[] { classesDir.toURI().toURL() },  parentLoader)) {
 //                        cls1 = (Class<MyOpMode>) loader1.loadClass("org.firstinspires.ftc.teamcode.MyOpMode");
@@ -157,7 +159,7 @@ public class FirstTechSimulator implements Runnable {
                 } catch(Exception compileError) {
                      compileError.printStackTrace();
                 }
-                errors.setText(errorCode == 0 ? "Code Saved!" : "There is an error in your code");
+                errors.setText(errorCode == 0 ? "<p>Code saved! Restart the program to run the updated code!</p>" : "<p style='color:red;'>There is an error in your code:</p><br>" + err);
             }
         });
 
@@ -173,6 +175,7 @@ public class FirstTechSimulator implements Runnable {
         card1.add(configuration);
 
         JScrollPane scrollPane = new JScrollPane(codeArea);
+        JScrollPane errorScroll = new JScrollPane(errors);
         codeArea.setEditorKit(new CustomEditorKit());
         codeArea.setText(readLineByLine("org/firstinspires/ftc/teamcode/MyOpMode.java"));
         JPanel JBottom = new JPanel();
@@ -180,7 +183,8 @@ public class FirstTechSimulator implements Runnable {
         JBottom.setLayout(new BorderLayout());
         JBottom.add(save, BorderLayout.NORTH);
         errors.setEditable(false);
-        JBottom.add(errors, BorderLayout.CENTER);
+        errors.setContentType("text/html");
+        JBottom.add(errorScroll, BorderLayout.CENTER);
         codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
         card3.setLayout(new BorderLayout());
