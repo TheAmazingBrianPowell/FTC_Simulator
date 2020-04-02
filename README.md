@@ -3,7 +3,7 @@
  
 Note: This is not an accurate way of displaying exactly how a real robot will work, it should only be used to learn the drive system.
 
-Note: This is the first release of this project. It is not anywhere near complete, and there is still a lot to do. I am open to any suggustions.
+Note: This is the first release of this project. It is not anywhere near complete, and there is still a lot to do. I am open to any suggestions.
 
 ## Setup instructions
 ### Install Java
@@ -14,7 +14,7 @@ Note: This is the first release of this project. It is not anywhere near complet
 
 ## Updating your code
 1. Click `Save Code`
-2. Restart the program. Close the window and double click on `FirstTechSimulator.class`
+2. Restart the program. Close the window and double click on `FirstTechSimulator.class` in the folder `bin/net/rhsrobotics/`
 
 ## Updates
 This is not the final product of this experiment. I plan on measuring some more variables to make this simulation more life-like as well as adding collisions, game components, and more functionality (such as driving with encoders).
