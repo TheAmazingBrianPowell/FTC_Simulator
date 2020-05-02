@@ -7,7 +7,7 @@ Note: This is the first release of this project. It is not anywhere near complet
 
 ## Setup instructions
 ### Install Java
-1. Go to https://www.java.com/en/download/ and install java
+1. Go to https://www.oracle.com/java/technologies/javase-downloads.html and install java JDK
 ### Install the Simulator
 1. Download the project and change the folder name to FTC_simulator
 2. Double click on `FirstTechSimulator.class` to run or run it through a command line tool using `java bin/net/rhsrobotics/FirstTechSimulator`
